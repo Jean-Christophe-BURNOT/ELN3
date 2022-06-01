@@ -1,0 +1,6 @@
+"Base_TP3.obj",
+"Lib_Base.obj",
+"Test_IO.obj" 
+TO "Essai_Uvision3" 
+RAMSIZE(256) 
+NOOVERLAY 

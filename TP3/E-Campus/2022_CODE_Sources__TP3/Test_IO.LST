@@ -1,0 +1,110 @@
+C51 COMPILER V9.60.0.0   TEST_IO                                                           05/09/2022 11:14:04 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE TEST_IO
+OBJECT MODULE PLACED IN Test_IO.OBJ
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE Test_IO.C OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND TABS(2)
+
+line level    source
+
+   1          //------------------------------------------------------------------------------------
+   2          // Test_IO.C
+   3          //------------------------------------------------------------------------------------
+   4          // AUTH: FJ
+   5          // DATE: 09-05-2022
+   6          // Target: C8051F02x
+   7          // Tool chain: KEIL Eval 'c'
+   8          //------------------------------------------------------------------------------------
+   9          // Fonction de Test pour TP SM3 - ELN3
+  10          // Ce programme produit des cycles d'écriture en XDATA de l'adresse 0 à l'adresse F800H
+  11          // par pas de 800H - Adresses produites: 000, 800H, 1000H, 1800H..........  F000H, F800H
+  12          // Le signal SLC1 (P4.0) sert de repère pour le cycle de test
+  13          // Une impulsion large sur SLC1 indique le début d'un cycle de test
+  14          // Les impulsions courtes sur SLC1 indiquent les cycles de Test sur les adresses
+  15          // de 000 à F800H
+  16          // Pour chaque adresse testée, on met à 1 les LED, puis on les remet à 0
+  17          //
+  18          // Si le décodage est OK (de 5000H à 5FFFH) on devrait obtenir 2 (et seulement 2 )impulsions
+  19          // (sur les 32 impulsions) quand on observe un des signaux LED.
+  20          // Au niveau de l'oscilloscope:
+  21          // Voie 1 - Visu et déclenchement sur SLC1 - Décleclenchement sur durée d'impulsion supérieure à
+  22          //  200 micro-secondes
+  23          // Voie 2 - Visu d'un des signaux LED
+  24          //
+  25          // Utilation de ce programme de TEST: dans le fichier Base_TP3, appeler ce sous-programme
+  26          // par un call Test_IO et le faire exécuter en boucle
+  27          
+  28          //------------------------------------------------------------------------------------
+  29          // Includes
+  30          //------------------------------------------------------------------------------------
+  31          #include <c8051f020.h>                    // SFR declarations
+  32          //------------------------------------------------------------------------------------
+  33          // Global CONSTANTS
+  34          //------------------------------------------------------------------------------------
+  35          
+  36          #define SYSCLK 22118400 //approximate SYSCLK frequency in Hz
+  37          #define LED_On 1
+  38          #define LED_Off 0
+  39          #define SET_SLC1  P4 |= (1<<0)
+  40          #define CLR_SLC1  P4 &= ~(1<<0)
+  41          
+  42          
+  43          // Eléments présents sur la carte 8051F020
+  44          sbit  LED = P1^6;         // LED verte: '1' = ON; '0' = OFF
+  45          sbit BP = P3^7;           // Bouton Poussoir '1' relaché, '0' pressé
+  46          
+  47          // Eléments de l'application Pilotage d'un système de tri
+  48          sbit Tst4 = P3^4;
+  49          sbit Tst5 = P3^5;
+  50          sbit Tst6 = P3^6;
+  51          
+  52          //------------------------------------------------------------------------------------
+  53          // Function PROTOTYPES
+  54          //------------------------------------------------------------------------------------
+  55          
+C51 COMPILER V9.60.0.0   TEST_IO                                                           05/09/2022 11:14:04 PAGE 2   
+
+  56          void _tempo(unsigned int);     // Fonction assembleur codée dans Asm_8051_Lib.asm
+  57          
+  58          
+  59          void Test_IO (void) {
+  60   1      
+  61   1      char xdata * Ptr_xdata;
+  62   1      unsigned char Cp_bcl; 
+  63   1      Ptr_xdata = 0x5000;
+  64   1      *Ptr_xdata=0;
+  65   1        
+  66   1      SET_SLC1;
+  67   1      _tempo(400);
+  68   1      CLR_SLC1;
+  69   1      _tempo(100);
+  70   1      Ptr_xdata = 0;
+  71   1      for(Cp_bcl=0;Cp_bcl<32;Cp_bcl++)
+  72   1      {
+  73   2      SET_SLC1;
+  74   2      *Ptr_xdata = 0XFF;
+  75   2      _tempo(20);
+  76   2      CLR_SLC1;
+  77   2      *Ptr_xdata = 0X00;  
+  78   2      _tempo(40);
+  79   2      Ptr_xdata += 0x800; 
+  80   2      }
+  81   1      tempo(400);
+  82   1      LED = ~LED;
+  83   1         
+  84   1      }
+  85          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    113    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----       3
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
