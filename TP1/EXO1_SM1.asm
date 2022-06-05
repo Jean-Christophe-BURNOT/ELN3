@@ -94,7 +94,6 @@ movx @DPTR, A
 
 
 ;EXO 3 : INSTRUCTIONS ARITHMETIQUES - ARITHMETIQUE NON SIGNEE
-
 ;1.	Incrémenter l'accumulateur de 1.
 inc A
 ;2.	Décrémenter de 1 l'octet d'adresse 33h de la RAM Interne.
@@ -108,33 +107,61 @@ mov B, A
 mov R1, A
 movx @DPTR, A
 ;4.	En une ligne de code, échanger le contenu de A avec le contenu de la mémoire 60h.
-
+xch A,60H
 
 
 ;EXO 4 : INSTRUCTIONS LOGIQUES - MANIPULATION de BITS
-
 ;1.	Complémenter le bit d'adresse 10h. Ou se trouve-t-il ? (c'est le bit X de l'octet d'adresse YY dans la mémoire DATA).
-
+mov a, 10h
+cpl a
+mov 10h,a
 ;2.	Mettre à 1, les bits 0 et 7  de l'octet d'adresse 22h de la RAM interne (sans changer les autres bits).
-
+SETB 17h
+SETB 10h
 ;3.	Mettre à 1, les bits 0 et 7 du registre R0 (sans changer les autres bits).
-
+;Solution par déplacement dans un registre accessible bit à bit
+mov A,R0
+SETB ACC.0
+SETB ACC.7
+mov R0, A
 ;4.	Mettre à 1, les bits 0 et 7 de l'octet d'adresse 07ffh de la XDATA (sans changer les autres bits)
-
+mov DPTR, #07FFH
+movx A, @DPTR
+SETB ACC.0
+SETB ACC.7
+movx @DPTR, A
 
 
 ;EXO 5 : INSTRUCTIONS DE SAUT CONDITIONNEL ET INCONDITIONNE
-
 ;1.	Placez une valeur quelconque dans R3, incrémentez la jusqu'à ce qu'elle atteigne la valeur B6h (pensez à initialiser R3).
-
+mov R3, #0B0h
+BCL_EX05_1:    
+	inc R3
+	CJNE R3, #0B6H, BCL_EX05_1
 ;2.	Remplir la mémoire RAM interne de l'adresse 20h à 40h avec des codes ASCII égrainant l'alphabet.
-
+mov A,#'A'
+mov R0, #20H
+BCL_EX05_2:	
+	MOV  @R0,A
+	INC  R0
+	INC A
+	CJNE A,#'Z'+1,BCL_EX05_2b
+	MOV  A,#'A'
+BCL_EX05_2b:	
+	CJNE R0,#41H,BCL_EX05_2
 ;3.	Lire le contenu de l'adresse 0000h à 0002h dans l'espace code et le copier à l'adresse 0000h à 0002h de l'espace XDATA.
-
-
+MOV DPTR,#0000H
+	MOV R3,#03H
+BCL_EX05_3:
+    CLR A
+	;Le DPTR est sur 0 en fonction du mode d'adressage on modifie des zones mémoires différentes
+	MOVC A,@A+DPTR
+	MOVX @DPTR,A
+	INC  DPTR
+	DJNZ R3,BCL_EX05_3
+    
 
 ;EXO 6 : MANIPULATION DES BANCS de REGISTRES R0-R7
-
 ;1.	Commuter le banc de registres R0-R7 sur le banc 2 et copier le contenu de A dans le registre R4 sans utiliser "R4" dans l'instruction.
 
 ;2.	Mettre à zéro la case d'adresse 08h de la ram interne en utilisant un adressage par registre (utiliser un registre R0...R7).
@@ -142,14 +169,12 @@ movx @DPTR, A
 
 
 ;EXO 7 : INSTRUCTIONS LOGIQUES - MANIPULATION de BITS - 2 
-
 ;1.	Décaler le registre B d'une case vers la gauche, le bit6 devient bit7, le bit5 devient bit6, etc. le bit7 devient bit0.
 
 ;2.	Exécuter une rotation logique gauche sur le DPTR, le bit 15 devient le bit 0. (Initialiser auparavant le DPTR avec la valeur 0F0Fh).
 
 
 ;EXO 8 : INSTRUCTIONS ARITHMETIQUES - Arithmétique non signée - 2 
-
 ;1.	Incrémenter de 2 la case mémoire RAM externe d'adresse 100h.
 
 ;2.	Multiplier les données en RAM interne d'adresse 22h et 23h. Placer le résultat en 24h(LSB) et 25h(MSB).
@@ -157,7 +182,6 @@ movx @DPTR, A
 
 
 ;EXO 9 : INSTRUCTIONS DE SAUT CONDITIONNEL ET INCONDITIONNEL - 2 
-
 ;1.	Remplir la mémoire RAM externe (XDATA) de l'adresse 120h à 140h avec des codes ASCII égrainant l'alphabet.
 
 ;2.	Incrémentez le DPTR initialisé avec une valeur quelconque jusqu'à la valeur de A B C D h.
@@ -165,7 +189,6 @@ movx @DPTR, A
 
 
 ;EXO 10 : Exercices d'approfondissement - FACULTATIF
-
 ;1.	Additionner les registres R6 et R7, stocker le résultat dans R5. Quelles sont les limitations ? Pour s'affranchir des limitations précédentes, refaire la même opération mais stocker le résultat dans R4 (LSB) et R5(MSB).
 
 ;2.	Faire l'opération R0 moins R1 et placer le résultat dans R7. Que se passe t'il si R1>R0 ?
